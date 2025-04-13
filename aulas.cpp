@@ -19,8 +19,6 @@ bool aulas(int i, int j, int temperatura) {
     if (i >= n || j >= m) return false;
 
     temperatura += grafoMatriz[i][j];
-//1
-    if (temperatura + offset < 0 || temperatura + offset >= maxTemp) return false;
 
     //optimizacion / poda
     int pasosRestantes = (n - 1 - i) + (m - 1 - j);
@@ -29,9 +27,6 @@ bool aulas(int i, int j, int temperatura) {
         } else {
     if (temperatura > pasosRestantes) return false;
         }
-//2
-    int diferencia = temperatura < 0 ? -temperatura : temperatura;
-    if ((pasosRestantes - diferencia) % 2 != 0) return false;
 
     // cb 2 -> si llega al final y temperatura == 0 ret true
     if (i == n - 1 && j == m - 1) return temperatura == 0;
