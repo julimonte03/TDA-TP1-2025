@@ -1,17 +1,16 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <cstring>
+#include <optional>
+#include <unordered_map>
 
 using namespace std;
 
-const int maxTemp = 201;
-const int maxNM = 101;
 const int offset = 100;
 
-bool dp[maxNM][maxNM][maxTemp]; 
-bool visit[maxNM][maxNM][maxTemp];
-int n, m,cantCasos;
+vector<vector<unordered_map<int, optional<bool>>>> dp; //CLAVE TEMP, VALOR PUEDE SER NULL (SI NO FUE VISITADO) O TRUE OR FALSE
+
+int n, m, cantCasos;
 vector<vector<int>> grafoMatriz;
 
 bool aulas(int i, int j, int temperatura) {
@@ -23,22 +22,22 @@ bool aulas(int i, int j, int temperatura) {
     //optimizacion / poda
     int pasosRestantes = (n - 1 - i) + (m - 1 - j);
     if (temperatura < 0) {
-    if (-temperatura > pasosRestantes) return false;
-        } else {
-    if (temperatura > pasosRestantes) return false;
-        }
+        if (-temperatura > pasosRestantes) return false;
+    } else {
+        if (temperatura > pasosRestantes) return false;
+    }
+
+    if ((pasosRestantes - abs(temperatura)) % 2 != 0) return false;
 
     // cb 2 -> si llega al final y temperatura == 0 ret true
     if (i == n - 1 && j == m - 1) return temperatura == 0;
 
-    if (visit[i][j][temperatura + offset]) return dp[i][j][temperatura + offset]; //devuelvo si ya tengo
+    if (dp[i][j].count(temperatura) && dp[i][j][temperatura].has_value()) return dp[i][j][temperatura].value();
 
-    //si no lo marco como visitado y lo guardo en dp
-    visit[i][j][temperatura + offset] = true;
+    bool res = aulas(i + 1, j, temperatura) || aulas(i, j + 1, temperatura);
 
-    dp[i][j][temperatura + offset] = aulas(i + 1, j, temperatura) ||  aulas(i, j + 1, temperatura);
-
-    return  dp[i][j][temperatura + offset];
+    dp[i][j][temperatura] = res;
+    return res;
 }
 
 int main() {
@@ -50,14 +49,10 @@ int main() {
         grafoMatriz = vector<vector<int>>(n, vector<int>(m));
 
         for (int i = 0; i < n; ++i)
-
             for (int j = 0; j < m; ++j)
-
                 cin >> grafoMatriz[i][j];
 
-
-        memset(dp, 0, sizeof(dp));
-        memset(visit, 0, sizeof(visit));
+        dp = vector<vector<unordered_map<int, optional<bool>>>>(n, vector<unordered_map<int, optional<bool>>>(m));
 
         if (aulas(0, 0, 0)) {
             cout << "YES\n";
